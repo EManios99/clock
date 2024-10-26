@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Byzantine Clock</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/suncalc/1.9.0/suncalc.min.js"></script>
+<style>
+body {
+    font-family: 'Helvetica', serif; 
+    background-color: #000;
+    color: #fff;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.clock-container {
+    text-align: center; 
+}
+
+.title {
+    font-size: 2em;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+
+.clock-face {
+    width: 300px; 
+    height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #fff, #ccc); 
+    margin: 20px auto;
+    position: relative;
+    border: 2px solid black;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); 
+}
+
+.hour-hand { 
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 4px; 
+    height: 38%; 
+    background-color: black;
+    transform-origin: 50% 100%;
+    transform: translate(0, -100%) rotate(0deg); 
+    z-index: 1; 
+}
+
+.hour-marker {
+    position: absolute;
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(calc(var(--hour) * 15deg - 90deg)) translateX(130px) rotate(90deg);  
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: black;
+}
+
+.hour-marker:nth-child(4), 
+.hour-marker:nth-child(7), 
+.hour-marker:nth-child(10), 
+.hour-marker:nth-child(13),
+.hour-marker:nth-child(16),
+.hour-marker:nth-child(19),
+.hour-marker:nth-child(22),
+.hour-marker:nth-child(25) { 
+    font-size: 1.7em; 
+}
+
+.hour-marker:not(:nth-child(4), :nth-child(7), :nth-child(10), :nth-child(13), :nth-child(16), :nth-child(19), :nth-child(22), :nth-child(25)) {
+    color: grey;
+}
+
+.info {
+    margin-top: 20px; 
+}
+
+.year {
+    font-size: 1.5em;
+    margin-bottom: 5px;
+}
+
+/* Hour lines styles */
+.hour-line {
+    position: absolute;
+    height: 225px; 
+    width: 1px;
+    background-color: darkgray;
+    top: 50%;
+    left: 50%;
+    transform-origin: 50% 50%; 
+    transform: translate(-50%, -50%) rotate(calc(var(--hour) * 15deg));
+}
+
+.clock-face::before {
+    content: ''; 
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 225px;
+    height: 225px;
+    border-radius: 50%;
+    border: 2px solid darkgray;
+    z-index: 0; 
+} 
+  
+</style>
+</head>
+<body>
+    <div class="clock-container">
+        <div class="clock-face">
+            <div class="hour-hand" id="hourHand"></div> 
+            <div class="hour-marker" style="--hour: 1;">Αʹ</div> 
+            <div class="hour-marker" style="--hour: 2;">Βʹ</div> 
+            <div class="hour-marker" style="--hour: 3;">Γʹ</div> 
+            <div class="hour-marker" style="--hour: 4;">Δʹ</div> 
+            <div class="hour-marker" style="--hour: 5;">Εʹ</div> 
+            <div class="hour-marker" style="--hour: 6;">Ϛʹ</div> 
+            <div class="hour-marker" style="--hour: 7;">Ζʹ</div> 
+            <div class="hour-marker" style="--hour: 8;">Ηʹ</div> 
+            <div class="hour-marker" style="--hour: 9;">Θʹ</div> 
+            <div class="hour-marker" style="--hour: 10;">Ιʹ</div> 
+            <div class="hour-marker" style="--hour: 11;">ΙΑʹ</div> 
+            <div class="hour-marker" style="--hour: 12;">ΙΒʹ</div> 
+            <div class="hour-marker" style="--hour: 13;">Αʹ</div> 
+            <div class="hour-marker" style="--hour: 14;">Βʹ</div> 
+            <div class="hour-marker" style="--hour: 15;">Γʹ</div> 
+            <div class="hour-marker" style="--hour: 16;">Δʹ</div> 
+            <div class="hour-marker" style="--hour: 17;">Εʹ</div> 
+            <div class="hour-marker" style="--hour: 18;">Ϛʹ</div> 
+            <div class="hour-marker" style="--hour: 19;">Ζʹ</div> 
+            <div class="hour-marker" style="--hour: 20;">Ηʹ</div> 
+            <div class="hour-marker" style="--hour: 21;">Θʹ</div> 
+            <div class="hour-marker" style="--hour: 22;">Ιʹ</div> 
+            <div class="hour-marker" style="--hour: 23;">ΙΑʹ</div> 
+            <div class="hour-marker" style="--hour: 24;">ΙΒʹ</div> 
+
+
+            <div class="hour-line" style="--hour: 0;"></div>
+            <div class="hour-line" style="--hour: 1;"></div>
+            <div class="hour-line" style="--hour: 2;"></div>
+            <div class="hour-line" style="--hour: 3;"></div>
+            <div class="hour-line" style="--hour: 4;"></div>
+            <div class="hour-line" style="--hour: 5;"></div>
+            <div class="hour-line" style="--hour: 6;"></div>
+            <div class="hour-line" style="--hour: 7;"></div>
+            <div class="hour-line" style="--hour: 8;"></div>
+            <div class="hour-line" style="--hour: 9;"></div>
+            <div class="hour-line" style="--hour: 10;"></div>
+            <div class="hour-line" style="--hour: 11;"></div>
+            <div class="hour-line" style="--hour: 12;"></div>
+             <div class="hour-line" style="--hour: 13;"></div>
+            <div class="hour-line" style="--hour: 14;"></div>
+            <div class="hour-line" style="--hour: 15;"></div>
+            <div class="hour-line" style="--hour: 16;"></div>
+            <div class="hour-line" style="--hour: 17;"></div>
+            <div class="hour-line" style="--hour: 18;"></div>
+            <div class="hour-line" style="--hour: 19;"></div>
+            <div class="hour-line" style="--hour: 20;"></div>
+            <div class="hour-line" style="--hour: 21;"></div>
+            <div class="hour-line" style="--hour: 22;"></div>
+            <div class="hour-line" style="--hour: 23;"></div>
+
+        </div>
+
+        <div class="info">          
+            <div class="byzantine-time">Ώρα: <span id="byzantineTime">--:--</span></div> 
+            <div class="other-info">
+                <div id="sunrise"></div>
+                <div id="sunset"></div>
+                <div id="dayHourLength"></div>
+                <div id="nightHourLength"></div>
+            </div>
+        </div>        
+    </div>
+    <script>
+
+function getLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(initClock, handleLocationError);
+    } else {
+        alert("Geolocation is not supported by this browser.");
+    }
+}
+
+function handleLocationError(error) {
+    console.error("Error getting location:", error);
+    initClock({ coords: { latitude: 40.7128, longitude: -74.0060 } }); // Default NYC coordinates
+}
+
+
+
+function calculateByzantineTime(date, sunTimes) {
+    const sunset = new Date(sunTimes.sunset);
+    const sunrise = new Date(sunTimes.sunrise);
+
+    const dayMinutes = (sunset - sunrise) / (1000 * 60);
+    const nightMinutes = 1440 - dayMinutes;
+
+    const dayHourLength = dayMinutes / 12;
+    const nightHourLength = nightMinutes / 12;
+
+    let byzantineHour;
+    let minutesIntoHour;
+    let secondsIntoHour;
+
+    let millisecondsSinceSunset = date - sunset; 
+    if (millisecondsSinceSunset < 0) { 
+        millisecondsSinceSunset += 24 * 60 * 60 * 1000; 
+    }
+
+    if (millisecondsSinceSunset < nightMinutes * 60 * 1000) { 
+        byzantineHour = Math.floor(millisecondsSinceSunset / (nightHourLength * 60 * 1000));
+        minutesIntoHour = Math.floor((millisecondsSinceSunset % (nightHourLength * 60 * 1000)) / (nightHourLength * 60 * 1000) * 60);
+        secondsIntoHour = Math.floor(((millisecondsSinceSunset % (nightHourLength * 60 * 1000)) % (nightHourLength * 60 * 1000)) / 1000) % 60;
+    } else {
+        byzantineHour = Math.floor((millisecondsSinceSunset - (nightMinutes * 60 * 1000)) / (dayHourLength * 60 * 1000)) + 12; 
+        minutesIntoHour = Math.floor(((millisecondsSinceSunset - (nightMinutes * 60 * 1000)) % (dayHourLength * 60 * 1000)) / (dayHourLength * 60 * 1000) * 60);
+        secondsIntoHour = Math.floor((((millisecondsSinceSunset - (nightMinutes * 60 * 1000)) % (dayHourLength * 60 * 1000)) / 1000) % 60);
+    }
+
+
+    const hourDeg = ((byzantineHour % 24) + minutesIntoHour / 60) * 15; 
+
+    const hourHand = document.getElementById('hourHand');
+    hourHand.style.transform = `translate(0, -100%) rotate(${hourDeg}deg)`;
+
+
+    let displayedHour = byzantineHour % 12;
+    if (displayedHour === 0) {
+        displayedHour = 12; 
+    }
+    let amPm = byzantineHour >= 12 ? 'pm' : 'am';
+
+    return `${String(displayedHour).padStart(2, '0')}:${String(minutesIntoHour).padStart(2, '0')}`; 
+}
+
+
+
+function formatTime(date) {
+    const hours = String(date.getHours()).padStart(2, '0');
+    let minutes = date.getMinutes();
+
+    if (date.getSeconds() >= 30) {
+        minutes += 1;
+    }
+    
+    const formattedMinutes = String(minutes % 60).padStart(2, '0');
+    return `${hours}:${formattedMinutes}`;
+}
+
+function minutesToHHMM(minutes) {
+    return Math.round(minutes); // Just round the total minutes
+}
+
+
+function initClock(position) {
+    const { latitude, longitude } = position.coords;
+
+    function update() {
+        const now = new Date();
+        const sunTimes = SunCalc.getTimes(now, latitude, longitude);
+
+        document.getElementById('sunrise').textContent = 
+           'Sunrise: ' + sunTimes.sunrise.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        document.getElementById('sunset').textContent = 
+            'Sunset: ' + sunTimes.sunset.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+        document.getElementById('byzantineTime').textContent = 
+            calculateByzantineTime(now, sunTimes);
+
+        document.getElementById('sunrise').textContent = 'Ανατολή: ' + formatTime(sunTimes.sunrise);
+        document.getElementById('sunset').textContent = 'Δύση: ' + formatTime(sunTimes.sunset);
+        document.getElementById('dayHourLength').textContent = 'Διάρκεια Ώρας Ημέρας: ' + minutesToHHMM(getDayHourLength(sunTimes));
+        document.getElementById('nightHourLength').textContent = 'Διάρκεια Ώρας Νύχτας: ' + minutesToHHMM(getNightHourLength(sunTimes));
+
+
+    }
+
+    update();
+    setInterval(update, 1000);
+}
+
+
+function getDayHourLength(sunTimes) {
+    const sunset = new Date(sunTimes.sunset);
+    const sunrise = new Date(sunTimes.sunrise);
+    const dayMinutes = (sunset - sunrise) / (1000 * 60);
+    return dayMinutes / 12;
+}
+
+function getNightHourLength(sunTimes) {
+    const totalMinutesInDay = 1440;
+    return (totalMinutesInDay - (getDayHourLength(sunTimes)*12)) / 12;
+}
+
+window.onload = getLocation;
+</script> 
+</body>
+</html>
